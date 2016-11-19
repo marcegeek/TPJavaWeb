@@ -17,7 +17,7 @@
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
 
-    <title>Combate por Turnos</title>
+    <title>Combate por Turnos - Eliminar Personaje</title>
 
     <!-- Bootstrap core CSS -->
     <link href="style/css/bootstrap.min.css" rel="stylesheet">

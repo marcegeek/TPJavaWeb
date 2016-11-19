@@ -53,9 +53,13 @@ public class EliminarPersonaje extends HttpServlet {
 		request.getSession().setAttribute("personajeeliminado", null);
 		if (personaje != null) {
 			try {
-				if (request.getParameter("ok") != null) {
+				if (request.getParameter("si") != null) {
 					new CtrlABMCPersonaje().save(personaje);
 					request.getSession().setAttribute("personajeeliminado", "ok");
+				}
+				else {
+					response.sendRedirect("adminpersonajes");
+					return;
 				}
 			}
 			catch (ApplicationException e) {

@@ -88,7 +88,7 @@
          %>
       <form class="form-signin" name="signin" action="eliminarpersonaje" method="post">
         <h2 class="form-signin-heading">¿Realmente desea eliminar al personaje <%= personajeEliminando.getNombre() %>?</h2>
-        <button class="btn btn-default btn-lg" name="ok" id="btnOk">Sí</button>
+        <button class="btn btn-default btn-lg" name="si" id="btnSi">Sí</button>
         <button class="btn btn-default btn-lg" name="no" id="btnNo">No</button>
       </form>
       <%

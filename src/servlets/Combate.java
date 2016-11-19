@@ -7,10 +7,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import util.ApplicationException;
 import business.entities.Personaje;
-import business.logic.CtrlABMCPersonaje;
 import business.logic.CtrlCombate;
 
 /**
@@ -19,7 +19,7 @@ import business.logic.CtrlCombate;
 @WebServlet("/combate")
 public class Combate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -29,29 +29,65 @@ public class Combate extends HttpServlet {
     }
 
 	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		setError(request.getSession(), null);
+		if (getControlador(request.getSession()) == null) {
+			Personaje per1 = (Personaje)request.getSession().getAttribute("personaje1");
+			Personaje per2 = (Personaje)request.getSession().getAttribute("personaje2");
+			CtrlCombate controladorCombate;
+			try {
+				controladorCombate = new CtrlCombate(per1, per2);
+				setControlador(request.getSession(), controladorCombate);
+				setError(request.getSession(), null);
+			} catch (ApplicationException e) {
+				setError(request.getSession(), e.getMessage());
+			}
+		}
+		request.getRequestDispatcher("/WEB-INF/combate.jsp").forward(request, response);
+	}
+
+	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int idPer1 = Integer.parseInt(request.getParameter("personaje1"));
-		int idPer2 = Integer.parseInt(request.getParameter("personaje2"));
-		if (idPer1 != idPer2) {
-			Personaje per1 = new Personaje();
-			Personaje per2 = new Personaje();
-			per1.setId(idPer1);
-			per2.setId(idPer2);
-			CtrlABMCPersonaje controlABMC = new CtrlABMCPersonaje();
-			try {
-				per1 = controlABMC.getByCod(per1);
-				per2 = controlABMC.getByCod(per2);
-				CtrlCombate controladorCombate = new CtrlCombate(per1, per2);
-				request.getSession().setAttribute("controlador", controladorCombate);
-			} catch (ApplicationException e) {
-				request.getSession().setAttribute("error", e.getMessage());
+		CtrlCombate controlador = getControlador(request.getSession());
+		setError(request.getSession(), null);
+		if (controlador != null) {
+			if (request.getParameter("atacar") != null) {
+				try {
+					controlador.atacar(Integer.parseInt(request.getParameter("puntosAtaque")));
+				} catch (NumberFormatException e) {
+					setError(request.getSession(), "Debe ingresar un número entero");
+				} catch (ApplicationException e) {
+					setError(request.getSession(), e.getMessage());
+				}
 			}
+			else if (request.getParameter("defender") != null) {
+				controlador.defender();
+			}
+			else if (request.getParameter("cancelar") != null) {
+				setControlador(request.getSession(), null);
+				response.sendRedirect("seleccionarpersonajes");
+				return;
+			}
+			request.getRequestDispatcher("/WEB-INF/combate.jsp").forward(request, response);
 		}
 		else {
-			request.getSession().setAttribute("error", "Los personajes seleccionados deben ser distintos");
+			response.sendRedirect("seleccionarpersonajes");
 		}
-		request.getRequestDispatcher("/WEB-INF/combate.jsp").forward(request, response);
+	}
+
+	protected CtrlCombate getControlador(HttpSession session) {
+		return (CtrlCombate)session.getAttribute("controladorCombate");
+	}
+
+	protected void setControlador(HttpSession session, CtrlCombate controlador) {
+		session.setAttribute("controladorCombate", controlador);
+	}
+
+	protected void setError(HttpSession session, String error) {
+		session.setAttribute("error", error);
 	}
 }

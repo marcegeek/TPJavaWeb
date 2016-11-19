@@ -8,12 +8,29 @@ import business.entities.Combate;
 import business.entities.Personaje;
 
 public class CtrlCombate {
-	DataCombate dataComb;
-	Personaje pers1, pers2;
-	Personaje turno;
-	Personaje ganador;
+	private Combate combate;
+	private DataCombate dataComb;
+	private Personaje pers1, pers2;
+	private Personaje turno;
+	private Personaje ganador;
 	private boolean combateFinalizado;
 	private String sucesosCombate = "";
+
+	public Personaje getPers1() {
+		return pers1;
+	}
+
+	public void setPers1(Personaje pers1) {
+		this.pers1 = pers1;
+	}
+
+	public Personaje getPers2() {
+		return pers2;
+	}
+
+	public void setPers2(Personaje pers2) {
+		this.pers2 = pers2;
+	}
 
 	public CtrlCombate(Personaje pers1, Personaje pers2) throws ApplicationException {
 		dataComb = new DataCombate();
@@ -76,9 +93,17 @@ public class CtrlCombate {
 		return atacado;
 	}
 
+	public Combate getCombate() {
+		return combate;
+	}
+
+	public void setCombate(Combate combate) {
+		this.combate = combate;
+	}
+
 	private void finalizarCombate() throws ApplicationException {
 		ganador = getTurno();
-		Combate combate = new Combate();
+		combate = new Combate();
 		combate.setState(States.NEW);
 		combate.setGanador(getTurno());
 		combate.setPerdedor(getOponente());
@@ -103,6 +128,30 @@ public class CtrlCombate {
 
 	public boolean isCombateFinalizado() {
 		return combateFinalizado;
+	}
+
+	public DataCombate getDataComb() {
+		return dataComb;
+	}
+
+	public void setDataComb(DataCombate dataComb) {
+		this.dataComb = dataComb;
+	}
+
+	public void setTurno(Personaje turno) {
+		this.turno = turno;
+	}
+
+	public void setGanador(Personaje ganador) {
+		this.ganador = ganador;
+	}
+
+	public void setCombateFinalizado(boolean combateFinalizado) {
+		this.combateFinalizado = combateFinalizado;
+	}
+
+	public void setSucesosCombate(String sucesosCombate) {
+		this.sucesosCombate = sucesosCombate;
 	}
 
 	public Personaje getGanador() {

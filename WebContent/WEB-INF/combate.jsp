@@ -1,14 +1,38 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="business.logic.CtrlCombate"%>
 <%@page import="business.entities.Personaje"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
-	List<Personaje> listaPersonajes = null;
-	String error = "";
-	if (session.getAttribute("mensajeError") instanceof String)
-		error = (String)session.getAttribute("mensajeError"); 
-	if (session.getAttribute("listaPersonajes") instanceof List)
-		listaPersonajes = (List<Personaje>) session.getAttribute("listaPersonajes"); 
+	CtrlCombate controlador = (CtrlCombate)session.getAttribute("controladorCombate");
+	String error = (String)session.getAttribute("error");
+%>
+
+<%!
+	private String puntosDeN(int val1, int val2) {
+		return String.valueOf(val1) + " / " + String.valueOf(val2);
+	}
+
+    private ArrayList<String> getLines(String text) {
+    	ArrayList<String> lista = new ArrayList<String>();
+    	int i = 0, enc = 0;
+    	while (enc >= 0) {
+    		enc = text.indexOf("\n", i);
+    		if (enc >= 0) {
+    			lista.add(text.substring(i, enc));
+    			i = enc + 1;
+    		}
+    	}
+    	if (i < text.length()) {
+    		lista.add(text.substring(i));
+    	}
+    	return lista;
+    }
+
+    private void setControladorCombate(HttpSession session, CtrlCombate controlador) {
+    	session.setAttribute("controladorCombate", controlador);
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +45,7 @@
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
 
-    <title>Combate por Turnos</title>
+    <title>Combate por Turnos - Combate</title>
 
     <!-- Bootstrap core CSS -->
     <link href="style/css/bootstrap.min.css" rel="stylesheet">
@@ -31,8 +55,8 @@
 
     <!-- Custom styles for this template -->
     <link href="style/css/navbar.css" rel="stylesheet">
-    <link href="style/css/bootstrap-select.min.css" rel="stylesheet">
     <link href="style/css/start.css" rel="stylesheet">
+    <link href="style/css/starter-template.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -60,14 +84,63 @@
           <div style="height: 1px;" aria-expanded="false" id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               <li class="active"><a href="index.html">Inicio</a></li>
-              <li><a href="adminpersonajes.html">Administración de personajes</a></li>
-              <li><a href="combate.html">Combate</a></li>
+              <li><a href="adminpersonajes">Administración de personajes</a></li>
+              <li><a href="seleccionarpersonajes">Nuevo combate</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </nav>
 
-      <h2>Combate!</h2>
+      <% if (error != null) { %>
+      <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error:</span>
+        <%= error %>.
+	  </div>
+      <%
+         }
+         if (controlador != null) {
+      %>
+      <div class="starter-template">
+        <h1>Combate: <%= controlador.getPers1().getNombre() %> vs. <%= controlador.getPers2().getNombre() %></h1>
+        <h2><%= controlador.getPers1().getNombre() %></h2>
+      	<p>Vida: <%= puntosDeN(controlador.getPers1().getVidaActual(), controlador.getPers1().getVida()) %></p>
+      	<p>Energía: <%= puntosDeN(controlador.getPers1().getEnergiaActual(), controlador.getPers1().getEnergia()) %></p>
+      	<h2><%= controlador.getPers2().getNombre() %></h2>
+      	<p>Vida: <%= puntosDeN(controlador.getPers2().getVidaActual(), controlador.getPers2().getVida()) %></p>
+      	<p>Energía: <%= puntosDeN(controlador.getPers2().getEnergiaActual(), controlador.getPers2().getEnergia()) %></p>
+      	<% if (!controlador.isCombateFinalizado()) { %>
+      	<h2>Registro de sucesos del combate</h2>
+      	<%    for (String line : getLines(controlador.getSucesosCombate())) { %>
+      	<p>   <%= line %></p>
+      	<%    }
+      	   }
+      	   else {
+      		   session.setAttribute("personaje", controlador.getGanador());
+      	%>
+      	<h2>El ganador del combate es:</h2>
+      	<p><%= controlador.getGanador().getNombre() %></p>
+      	<p>
+          <a class="btn btn-lg btn-primary" href="editarcrearpersonaje" role="button">Asignar los <%= controlador.getCombate().getPuntos() %> puntos ganados</a>
+        </p>
+        <%
+               setControladorCombate(session, null);
+        %>
+      	<% } %>
+      </div>
+
+      <form style="visibility: <%= (!controlador.isCombateFinalizado()) ? "visible" : "hidden" %>;" class="form-signin" name="signin" action="combate" method="post">
+        <h2 class="form-signin-heading">Turno de <%= controlador.getTurno().getNombre() %></h2>
+        <label for="txtPuntosAtaque" class="sr-only">Puntos de ataque</label>
+        <input name="puntosAtaque" id="txtPuntosAtaque" class="form-control" placeholder="Puntos de ataque">
+        <button class="btn btn-lg btn-primary btn-block" name="atacar" id="btnAtacar" disabled="disabled">Atacar</button>
+        <button class="btn btn-lg btn-primary btn-block" name="defender" id="btnDefender">Defender</button>
+        <button class="btn btn-lg btn-primary btn-block" name="cancelar" id="btnCancelar">Cancelar combate</button>
+      </form>
+      <%
+         }
+      %>
 
       <footer>&copy; 2016 Marcelo Castellano</footer>      
 
@@ -82,6 +155,16 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="style/js/ie10-viewport-bug-workaround.js"></script>
 
-    <script src="style/js/bootstrap-select.min.js"></script>    
+    <script type="text/javascript">
+      $("#txtPuntosAtaque").keyup(function() {
+    	  var txtPuntosAtaque = $(this);
+    	  if ($.isNumeric(txtPuntosAtaque.val())) {
+    		  $("#btnAtacar").prop("disabled",false);
+    	  }
+    	  else {
+    		  $("#btnAtacar").prop("disabled",true);
+    	  }
+      })
+    </script>    
   </body>
 </html>

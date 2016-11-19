@@ -68,6 +68,11 @@ public class Personaje extends BusinessEntity implements Serializable {
 		return per instanceof Personaje && ((Personaje)per).getId() == this.getId();
 	}
 
+	public boolean isValido() {
+		return defensa <= MAX_DEFENSA && evasion <= MAX_EVASION &&
+				vida + energia + defensa + evasion <= puntosTotales;
+	}
+
 	boolean recibirAtaque(int energia) {
 		// evade el ataque si (numAleatorio * 100) < puntosDeEvasion
 		// no lo evade cuando (numAleatorio * 100) >= puntosDeEvasion

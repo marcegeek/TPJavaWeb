@@ -1,14 +1,10 @@
 <%@page import="business.entities.Personaje"%>
-<%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
-	List<Personaje> listaPersonajes = null;
-	String error = "";
-	if (session.getAttribute("mensajeError") instanceof String)
-		error = (String)session.getAttribute("mensajeError"); 
-	if (session.getAttribute("listaPersonajes") instanceof List)
-		listaPersonajes = (List<Personaje>) session.getAttribute("listaPersonajes"); 
+	Personaje personajeCreandoEditando = (Personaje)session.getAttribute("personaje");
+	String error = (String)session.getAttribute("error");
+	String personajeGuardado = (String)session.getAttribute("personajeguardado");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,27 +56,59 @@
           <div style="height: 1px;" aria-expanded="false" id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               <li class="active"><a href="index.html">Inicio</a></li>
-              <li><a href="adminpersonajes.html">Administración de personajes</a></li>
-              <li><a href="combate.html">Combate</a></li>
+              <li><a href="adminpersonajes">Administración de personajes</a></li>
+              <li><a href="combate">Combate</a></li>
+              <li><a href="seleccionarpersonajes">Nuevo combate</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </nav>
 
-      <form class="form-signin" name="signin" action="combate" method="post">
-        <h2 class="form-signin-heading">Seleccione los personajes para el combate</h2>
-        <select class="selectpicker" data-width="100%" id="personaje1" name="personaje1">
-          <% for (Personaje per : listaPersonajes) { %>
-          <option value="<%= per.getId() %>"> <%= per.getNombre() %> </option>
-          <% } %>
-        </select>
-        <select class="selectpicker" data-width="100%" id="personaje2" name="personaje2">
-          <% for (Personaje per : listaPersonajes) { %>
-          <option value="<%= per.getId() %>"> <%= per.getNombre() %> </option>
-          <% } %>
-        </select>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Comenzar combate!</button>
+      <% if (error != null) { %>
+      <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error:</span>
+        <%= error %>.
+	  </div>
+      <%
+         }
+         if (personajeCreandoEditando != null) { %>
+         <% if (personajeGuardado != null) { %>
+         <div class="alert alert-success alert-dismissible" role="alert">
+           <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+           <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+           <span class="sr-only">Success:</span>
+           Los datos del personaje han sido guardados correctamente.
+         </div>
+         <% } %>
+      <form class="form-signin" name="signin" action="editarcrearpersonaje" method="post">
+        <h2 class="form-signin-heading">Edite su personaje</h2>
+        <label>Nombre</label>
+        <input name="nombre" id="txtNombre" class="form-control"
+          value="<%= (personajeCreandoEditando.getNombre() != null) ? personajeCreandoEditando.getNombre() : "Nombre" %>"
+        >
+        <label>Vida</label>
+        <input name="vida" id="txtVida" class="form-control"
+          value="<%= personajeCreandoEditando.getVida() %>"
+        >
+        <label>Energía</label>
+        <input name="energia" id="txtEnergia" class="form-control"
+          value="<%= personajeCreandoEditando.getEnergia() %>"
+        >
+        <label>Defensa</label>
+        <input name="defensa" id="txtDefensa" class="form-control"
+          value="<%= personajeCreandoEditando.getDefensa() %>"
+        >
+        <label>Evasión</label>
+        <input name="evasion" id="txtEvasion" class="form-control"
+          value="<%= personajeCreandoEditando.getEvasion() %>"
+        >
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Guardar</button>
       </form>
+      <%
+         }
+      %>
 
       <footer>&copy; 2016 Marcelo Castellano</footer>      
 

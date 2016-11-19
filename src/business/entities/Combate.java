@@ -1,8 +1,11 @@
 package business.entities;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Combate extends BusinessEntity {
+public class Combate extends BusinessEntity implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private Personaje ganador, perdedor;
 	private int puntos;
 	private Date fechaHora;

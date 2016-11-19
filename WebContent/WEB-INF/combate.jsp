@@ -92,11 +92,16 @@
       </nav>
 
       <% if (error != null) { %>
-      <div class="alert alert-danger alert-dismissible" role="alert">
+      <div class="alert alert-danger <% if (controlador != null) { %>alert-dismissible" <% } %>role="alert">
+        <% if (controlador != null) { %>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <% } %>
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         <span class="sr-only">Error:</span>
         <%= error %>.
+        <% if (controlador == null) { %>
+        <a href="seleccionarpersonajes" class="alert-link">Volver a la selección de personajes</a>.
+        <% } %>
 	  </div>
       <%
          }
@@ -104,18 +109,22 @@
       %>
       <div class="starter-template">
         <h1>Combate: <%= controlador.getPers1().getNombre() %> vs. <%= controlador.getPers2().getNombre() %></h1>
-        <h2><%= controlador.getPers1().getNombre() %></h2>
-      	<p>Vida: <%= puntosDeN(controlador.getPers1().getVidaActual(), controlador.getPers1().getVida()) %></p>
-      	<p>Energía: <%= puntosDeN(controlador.getPers1().getEnergiaActual(), controlador.getPers1().getEnergia()) %></p>
-      	<h2><%= controlador.getPers2().getNombre() %></h2>
-      	<p>Vida: <%= puntosDeN(controlador.getPers2().getVidaActual(), controlador.getPers2().getVida()) %></p>
-      	<p>Energía: <%= puntosDeN(controlador.getPers2().getEnergiaActual(), controlador.getPers2().getEnergia()) %></p>
+        <div class="row">
+          <div class="col-md-6">
+            <h2><%= controlador.getPers1().getNombre() %></h2>
+            <p>Vida: <%= puntosDeN(controlador.getPers1().getVidaActual(), controlador.getPers1().getVida()) %></p>
+            <p>Energía: <%= puntosDeN(controlador.getPers1().getEnergiaActual(), controlador.getPers1().getEnergia()) %></p>
+          </div>
+          <div class="col-md-6">
+            <h2><%= controlador.getPers2().getNombre() %></h2>
+            <p>Vida: <%= puntosDeN(controlador.getPers2().getVidaActual(), controlador.getPers2().getVida()) %></p>
+            <p>Energía: <%= puntosDeN(controlador.getPers2().getEnergiaActual(), controlador.getPers2().getEnergia()) %></p>
+          </div>
+        </div>
       	<% if (!controlador.isCombateFinalizado()) { %>
-      	<h2>Registro de sucesos del combate</h2>
-      	<%    for (String line : getLines(controlador.getSucesosCombate())) { %>
-      	<p>   <%= line %></p>
-      	<%    }
-      	   }
+      	<h3>Registro de sucesos del combate</h3>
+      	<textarea style="width: 75%;" rows="7" cols="7"><%= controlador.getSucesosCombate() %></textarea>
+      	<% }
       	   else {
       		   session.setAttribute("personaje", controlador.getGanador());
       	%>
@@ -124,21 +133,31 @@
       	<p>
           <a class="btn btn-lg btn-primary" href="editarcrearpersonaje" role="button">Asignar los <%= controlador.getCombate().getPuntos() %> puntos ganados</a>
         </p>
-        <%
-               setControladorCombate(session, null);
-        %>
-      	<% } %>
+      	<%
+      	       /*
+      	        * elimino del controlador de la sesión,
+      	        * ya que terminó el combate, si intenta
+      	        * volver al mismo lo enviará a la selección
+      	        * de personajes para un nuevo combate
+      	        */
+      	       setControladorCombate(session, null);
+      	   }
+      	%>
       </div>
 
-      <form style="visibility: <%= (!controlador.isCombateFinalizado()) ? "visible" : "hidden" %>;" class="form-signin" name="signin" action="combate" method="post">
+      <%   if (!controlador.isCombateFinalizado()) { %>
+      <form class="form-signin" name="signin" action="combate" method="post">
         <h2 class="form-signin-heading">Turno de <%= controlador.getTurno().getNombre() %></h2>
         <label for="txtPuntosAtaque" class="sr-only">Puntos de ataque</label>
-        <input name="puntosAtaque" id="txtPuntosAtaque" class="form-control" placeholder="Puntos de ataque">
-        <button class="btn btn-lg btn-primary btn-block" name="atacar" id="btnAtacar" disabled="disabled">Atacar</button>
-        <button class="btn btn-lg btn-primary btn-block" name="defender" id="btnDefender">Defender</button>
-        <button class="btn btn-lg btn-primary btn-block" name="cancelar" id="btnCancelar">Cancelar combate</button>
+        <input name="puntosAtaque" id="txtPuntosAtaque" class="form-control-small" placeholder="Puntos de ataque">
+        <button class="btn btn-lg btn-primary" name="atacar" id="btnAtacar" disabled="disabled">Atacar</button>
+        <button class="btn btn-lg btn-primary" name="defender" id="btnDefender">Defender</button>
+        <button class="btn btn-default btn-lg" name="cancelar" id="btnCancelar">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancelar combate
+        </button>
       </form>
       <%
+           }
          }
       %>
 
@@ -155,6 +174,9 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="style/js/ie10-viewport-bug-workaround.js"></script>
 
+    <%
+    if (controlador != null && !controlador.isCombateFinalizado()) {
+    %>
     <script type="text/javascript">
       $("#txtPuntosAtaque").keyup(function() {
     	  var txtPuntosAtaque = $(this);
@@ -165,6 +187,9 @@
     		  $("#btnAtacar").prop("disabled",true);
     	  }
       })
-    </script>    
+    </script>
+    <%
+    }
+    %>    
   </body>
 </html>

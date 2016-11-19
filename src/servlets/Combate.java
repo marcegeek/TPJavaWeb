@@ -36,11 +36,21 @@ public class Combate extends HttpServlet {
 		if (getControlador(request.getSession()) == null) {
 			Personaje per1 = (Personaje)request.getSession().getAttribute("personaje1");
 			Personaje per2 = (Personaje)request.getSession().getAttribute("personaje2");
+			if (per1 == null || per2 == null) {
+				response.sendRedirect("seleccionarpersonajes");
+				return;
+			}
 			CtrlCombate controladorCombate;
 			try {
 				controladorCombate = new CtrlCombate(per1, per2);
 				setControlador(request.getSession(), controladorCombate);
-				setError(request.getSession(), null);
+				/*
+				 * elimino los personajes de la sesión, ya no son necesarios,
+				 * así al cancelar el combate, si intenta volver al mismo lo
+				 * lleva a seleccionar personajes para un nuevo combate
+				 */
+				request.getSession().setAttribute("personaje1", null);
+				request.getSession().setAttribute("personaje2", null);
 			} catch (ApplicationException e) {
 				setError(request.getSession(), e.getMessage());
 			}

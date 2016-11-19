@@ -35,7 +35,7 @@ public class EliminarPersonaje extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Personaje per = getPersonaje(request.getSession());
 		request.getSession().setAttribute("personajeeliminado", null);
-		if (getPersonaje(request.getSession()) != null) {
+		if (per != null && per.getState() != States.NEW) {
 			per.setState(States.DELETED);
 			request.getRequestDispatcher("/WEB-INF/eliminarpersonaje.jsp").forward(request, response);
 		}

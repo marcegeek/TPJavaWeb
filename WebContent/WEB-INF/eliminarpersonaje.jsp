@@ -65,11 +65,16 @@
       </nav>
 
       <% if (error != null) { %>
-      <div class="alert alert-danger alert-dismissible" role="alert">
+      <div class="alert alert-danger <% if (personajeEliminando != null) { %>alert-dismissible" <% } %>role="alert">
+        <% if (personajeEliminando != null) { %>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <% } %>
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         <span class="sr-only">Error:</span>
         <%= error %>.
+        <% if (personajeEliminando == null) { %>
+        <a href="adminpersonajes" class="alert-link">Volver a la administración de personajes</a>.
+        <% } %>
 	  </div>
       <%
          }

@@ -66,7 +66,7 @@ public class EditarCrearPersonaje extends HttpServlet {
 					request.getSession().setAttribute("personajeguardado", "ok");
 				}
 				else {
-					setError(request.getSession(), "Los valores ingresados superan el máximo permitido");
+					setError(request.getSession(), "Los valores ingresados no son válidos");
 				}
 			}
 			catch (NumberFormatException e) {

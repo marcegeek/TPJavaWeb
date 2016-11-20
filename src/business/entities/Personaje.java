@@ -69,7 +69,8 @@ public class Personaje extends BusinessEntity implements Serializable {
 	}
 
 	public boolean isValido() {
-		return defensa <= MAX_DEFENSA && evasion <= MAX_EVASION &&
+		return !nombre.isEmpty() && vida >= 0 && energia >= 0 && defensa >=0 && evasion >= 0 &&
+				defensa <= MAX_DEFENSA && evasion <= MAX_EVASION &&
 				vida + energia + defensa + evasion <= puntosTotales;
 	}
 
@@ -84,6 +85,9 @@ public class Personaje extends BusinessEntity implements Serializable {
 	}
 
 	public boolean atacar(Personaje oponente, int energia) throws ApplicationException {
+		if (energia < 0) {
+			throw new ApplicationException("La energía a utilizar para el ataque debe ser mayor o igual a 0");
+		}
 		if (energia > getEnergiaActual()) {
 			throw new ApplicationException("Energía insuficiente para realizar el ataque");
 		}

@@ -14,22 +14,6 @@
 		return String.valueOf(val1) + " / " + String.valueOf(val2);
 	}
 
-    private ArrayList<String> getLines(String text) {
-    	ArrayList<String> lista = new ArrayList<String>();
-    	int i = 0, enc = 0;
-    	while (enc >= 0) {
-    		enc = text.indexOf("\n", i);
-    		if (enc >= 0) {
-    			lista.add(text.substring(i, enc));
-    			i = enc + 1;
-    		}
-    	}
-    	if (i < text.length()) {
-    		lista.add(text.substring(i));
-    	}
-    	return lista;
-    }
-
     private void setControladorCombate(HttpSession session, CtrlCombate controlador) {
     	session.setAttribute("controladorCombate", controlador);
     }
@@ -149,7 +133,7 @@
       <form class="form-signin" name="signin" action="combate" method="post">
         <h2 class="form-signin-heading">Turno de <%= controlador.getTurno().getNombre() %></h2>
         <label for="txtPuntosAtaque" class="sr-only">Puntos de ataque</label>
-        <input name="puntosAtaque" id="txtPuntosAtaque" class="form-control-small" placeholder="Puntos de ataque">
+        <input type="number" min="0" max="<%= controlador.getTurno().getEnergiaActual() %>" name="puntosAtaque" id="txtPuntosAtaque" class="form-control-small" placeholder="Puntos de ataque">
         <button class="btn btn-lg btn-primary" name="atacar" id="btnAtacar" disabled="disabled">Atacar</button>
         <button class="btn btn-lg btn-primary" name="defender" id="btnDefender">Defender</button>
         <button class="btn btn-default btn-lg" name="cancelar" id="btnCancelar">
@@ -178,9 +162,12 @@
     if (controlador != null && !controlador.isCombateFinalizado()) {
     %>
     <script type="text/javascript">
+      function isInt(n) {
+    	  return $.isNumeric(n) && n === parseInt(n, 10).toString();
+      }
       $("#txtPuntosAtaque").keyup(function() {
     	  var txtPuntosAtaque = $(this);
-    	  if ($.isNumeric(txtPuntosAtaque.val())) {
+    	  if (isInt(txtPuntosAtaque.val())) {
     		  $("#btnAtacar").prop("disabled",false);
     	  }
     	  else {

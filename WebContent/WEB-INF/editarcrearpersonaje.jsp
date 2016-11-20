@@ -1,3 +1,4 @@
+<%@page import="servlets.EditarCrearPersonaje"%>
 <%@page import="business.entities.Personaje"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -89,24 +90,25 @@
          <% } %>
       <form class="form-signin" name="signin" action="editarcrearpersonaje" method="post">
         <h2 class="form-signin-heading">Edite su personaje</h2>
+        <label>Puntos restantes:</label> <label style="font-weight: normal;" id="lblRestantes"><%= personajeCreandoEditando.getPuntosTotales() %></label><br>
         <label>Nombre</label>
         <input name="nombre" id="txtNombre" class="form-control"
           value="<%= (personajeCreandoEditando.getNombre() != null) ? personajeCreandoEditando.getNombre() : "Nombre" %>"
         >
         <label>Vida</label>
-        <input name="vida" id="txtVida" class="form-control"
+        <input type="number" min="0" max="<%= personajeCreandoEditando.getPuntosTotales() %>" name="vida" id="txtVida" class="form-control" required="true"
           value="<%= personajeCreandoEditando.getVida() %>"
         >
         <label>Energía</label>
-        <input name="energia" id="txtEnergia" class="form-control"
+        <input type="number" min="0" max="<%= personajeCreandoEditando.getPuntosTotales() %>" name="energia" id="txtEnergia" class="form-control" required="true"
           value="<%= personajeCreandoEditando.getEnergia() %>"
         >
         <label>Defensa</label>
-        <input name="defensa" id="txtDefensa" class="form-control"
+        <input type="number" min="0" max="<%= Personaje.MAX_DEFENSA %>" name="defensa" id="txtDefensa" class="form-control" required="true"
           value="<%= personajeCreandoEditando.getDefensa() %>"
         >
         <label>Evasión</label>
-        <input name="evasion" id="txtEvasion" class="form-control"
+        <input type="number" min="0" max="<%= Personaje.MAX_EVASION %>" name="evasion" id="txtEvasion" class="form-control" required="true"
           value="<%= personajeCreandoEditando.getEvasion() %>"
         >
         <button class="btn btn-lg btn-primary btn-block" type="submit">Guardar</button>
@@ -128,6 +130,91 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="style/js/ie10-viewport-bug-workaround.js"></script>
 
-    <script src="style/js/bootstrap-select.min.js"></script>    
+    <script src="style/js/bootstrap-select.min.js"></script>
+
+    <%
+    if (personajeCreandoEditando != null) {
+    %>
+    <script type="text/javascript">
+      function isInt(n) {
+    	  return $.isNumeric(n) && n === parseInt(n, 10).toString();
+      }
+      function calcularPuntosAsignados() {
+    	  var vida = 0, energia = 0, defensa = 0, evasion = 0;
+    	  var txtVida = $("#txtVida");
+    	  var txtEnergia = $("#txtEnergia");
+    	  var txtDefensa = $("#txtDefensa");
+    	  var txtEvasion = $("#txtEvasion");
+    	  if (isInt(txtVida.val())) {
+    		  vida = parseInt(txtVida.val());
+    	  }
+    	  if (isInt(txtEnergia.val())) {
+    		  energia = +txtEnergia.val();
+    	  }
+    	  if (isInt(txtDefensa.val())) {
+    		  defensa = +txtDefensa.val();
+    	  }
+    	  if (isInt(txtEvasion.val())) {
+    		  evasion = +txtEvasion.val();
+    	  }
+    	  return vida + defensa + energia + evasion;
+      }
+      function actualizarPuntosRestantes(txtField) {
+    	  var puntosTotales = <%= personajeCreandoEditando.getPuntosTotales() %>;
+    	  var puntosRestantes = puntosTotales - calcularPuntosAsignados();
+    	  var field = 0;
+    	  if (isInt(txtField.val())) {
+    		  field = +txtField.val();
+    		  if (field > $(this).prop("max")) {
+    			  txtField.val($(this).prop("max"));
+    			  field = +txtField.val();
+    		  }
+    		  else if (field < 0) {
+    			  txtField.val("0");
+    			  field = 0;
+    		  }
+    	  }
+    	  else {
+    		  txtField.val("0");
+    	  }
+    	  if (puntosRestantes >= 0) {
+    		  $("#lblRestantes").text(puntosRestantes);
+    	  }
+    	  else {
+              // el valor del campo que cambió es mayor al permitido, ajustarlo
+    		  // al máximo permitido (que haga que sólo queden 0 puntos)
+              var maximoPermitido = field + puntosRestantes;
+              txtField.val(maximoPermitido);
+              actualizarPuntosRestantes(txtField);
+          }
+      }
+      $("#txtVida").keyup(function() {
+    	  $(this).change();
+      })
+      $("#txtEnergia").keyup(function() {
+    	  $(this).change();
+      })
+      $("#txtDefensa").keyup(function() {
+    	  $(this).change();
+      })
+      $("#txtEvasion").keyup(function() {
+    	  $(this).change();
+      })
+      $("#txtVida").change(function() {
+    	  actualizarPuntosRestantes($(this));
+      })
+      $("#txtEnergia").change(function() {
+    	  actualizarPuntosRestantes($(this));
+      })
+      $("#txtDefensa").change(function() {
+    	  actualizarPuntosRestantes($(this));
+      })
+      $("#txtEvasion").change(function() {
+    	  actualizarPuntosRestantes($(this));
+      })
+    </script>
+    <%
+    }
+    %>
   </body>
 </html>

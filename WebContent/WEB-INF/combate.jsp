@@ -165,7 +165,7 @@
       function isInt(n) {
     	  return $.isNumeric(n) && n === parseInt(n, 10).toString();
       }
-      $("#txtPuntosAtaque").keyup(function() {
+      $("#txtPuntosAtaque").change(function() {
     	  var txtPuntosAtaque = $(this);
     	  if (isInt(txtPuntosAtaque.val())) {
     		  $("#btnAtacar").prop("disabled",false);
@@ -173,6 +173,9 @@
     	  else {
     		  $("#btnAtacar").prop("disabled",true);
     	  }
+      })
+      $("#txtPuntosAtaque").keyup(function() {
+    	  $(this).change();
       })
     </script>
     <%
